@@ -22,33 +22,45 @@ local function loadChildren(parent_properties, parent)
 		debounce1 = os.clock()
 	end
 	
-	if parent_properties["ClassName"] == "TouchTransmitter" then
+	if parent_properties[1] == "TouchTransmitter" then
 		return
 	end
 	
-	local asset = Instance.new(parent_properties["ClassName"])
+	local asset = Instance.new(parent_properties[1])
 	
-	if (parent_properties["ClassName"] == "Script" and parent_properties["Name"] ~= "RequireHLO") or parent_properties["ClassName"] == "LocalScript" or parent_properties["ClassName"] == "ModuleScript" then
+	if (parent_properties[1] == "Script" and parent_properties[2] ~= "RequireHLO") or parent_properties[1] == "LocalScript" or parent_properties[1] == "ModuleScript" then
 		asset:Destroy()
 		
-		asset = LSS[parent_properties["ClassName"]]:Clone()
-		asset.Name = parent_properties["Name"]	
-	elseif parent_properties["ClassName"] == "Script" then
+		asset = LSS[parent_properties[1]]:Clone()
+		asset.Name = parent_properties[2]
+	elseif parent_properties[1] == "Script" then
 		asset:Destroy()
 
 		asset = LSS["RequireHLO"]:Clone()
-		asset.Name = parent_properties["Name"]	
+		asset.Name = parent_properties[2]	
 	end
 	
-	for _, attributes in pairs(parent_properties["Attributes"]) do
+	for _, attributes in pairs(parent_properties[4]) do
 		for attribute, value in pairs(attributes) do
 			asset:SetAttribute(attribute, value)
 		end
 	end
 
-	for i,property in pairs(parent_properties) do
+	for i,property in pairs(parent_properties[3]) do
 		if i == "ClassName" or i == "Children" or i == "Attributes" or i == "Parent" or asset.ClassName == "ModuleScript" then
 			continue
+		end
+
+		if i == "CFrame" then
+			local cframe, _ = pcall(function()
+				asset[i] = CFrame.new(table.unpack(property:gsub(" ",""):split(",")))
+			end)
+			return
+		elseif i == "Color3" then
+			local color3, _ = pcall(function()
+				asset[i] = Color3.new(table.unpack(property:gsub(" ",""):split(",")))
+			end)
+			return
 		end
 
 		if property:split(".")[1] == "Enum" then
@@ -96,7 +108,7 @@ local function loadChildren(parent_properties, parent)
 	asset.Parent = parent
 	
 	
-	for _,child_properties in pairs(parent_properties["Children"]) do
+	for _,child_properties in pairs(parent_properties[3]) do
 		loadChildren(child_properties, asset)
 	end
 end
