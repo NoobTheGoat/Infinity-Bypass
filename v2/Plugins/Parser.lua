@@ -18,12 +18,12 @@ local function parseChildren(parent: Instance, parent_properties: any, ignore: b
 		last = os.clock()
 		task.wait()
 	end
+	
+	local IgnoredClasses = {"ModuleScript"}
 
-	local self_properties = {
-		["Children"] = {},
-		["ClassName"] = parent.ClassName,
-		["Attributes"] = {parent:GetAttributes()}
-	}
+	if not ignore then ignore = table.find(IgnoredClasses, parent.ClassName) end
+
+	local IgnoredProperties = {'LinkedSource', 'Archivable'}
 
 	local self_properties = {}
 
@@ -38,9 +38,13 @@ local function parseChildren(parent: Instance, parent_properties: any, ignore: b
 
 		if fetched_properties then
 			for _,property in ipairs(fetched_properties) do
-				if typeof(parent[property]) == "Instance" or property == "Name" then
+				if typeof(parent[property]) == "Instance" or property == "Name" or table.find(IgnoredProperties, property) then
 					continue
 				end
+
+				if property == "PrimaryPart" and parent[property] == nil then continue end
+				if property == "Anchored" and parent[property] == false then continue end
+				if property == "Locked" and parent[property] == false then continue end
 
 				self_properties[3][property] = tostring(parent[property])
 			end
@@ -57,8 +61,8 @@ local function parseChildren(parent: Instance, parent_properties: any, ignore: b
 	return self_properties
 end
 
-local toolbar = plugin:CreateToolbar("Upload Scripts")
-local parse_selection = toolbar:CreateButton("Upload", "Parses & Uploads your scripts", "parses the scripts inside mainmodule present in SS.Asset.MainModule")
+local toolbar = plugin:CreateToolbar("Parser")
+local parse_selection = toolbar:CreateButton("Parse", "Parses your game files", "")
 
 local db = false
 

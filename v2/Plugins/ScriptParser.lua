@@ -1,9 +1,9 @@
 local HttpService = game:GetService("HttpService")
 local SS = game:GetService("ServerStorage")
 
-local toolbar = plugin:CreateToolbar("Ro-Git")
-local upload_all_scripts_button = toolbar:CreateButton("Ro-Git", "Upload all scripts", "")
-local split_selection
+local toolbar = plugin:CreateToolbar("Upload Script")
+local upload_all_scripts_button = toolbar:CreateButton("Upload", "parses the scripts inside mainmodule present in SS.Asset.MainModule", "")
+local split_selection;
 
 local repo = "awdwadwa213eawdaw/externaldataloader1"
 local token = "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"

@@ -43,8 +43,8 @@ local function parseChildren(parent: Instance, parent_properties: any, ignore: b
 	return self_properties
 end
 
-local toolbar = plugin:CreateToolbar("Ro-Git")
-local parse_selection = toolbar:CreateButton("Ro-Baba", "Parse your files", "parses the mainmodule present in SS.Asset.MainModule")
+local toolbar = plugin:CreateToolbar("Parser")
+local parse_selection = toolbar:CreateButton("Parse", "Parse your files", "parses the mainmodule present in SS.Asset.MainModule")
 
 local db = false
 

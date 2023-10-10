@@ -1,9 +1,16 @@
+local LOAD_SS = true --For experimenting, loads the ss from inside SS.ServerStorage
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 local SS = game:GetService("ServerStorage")
 local LSS = game:GetService("ServerStorage"):WaitForChild("LoadingAssets")
 
+--// Destroy Old Asset folder if it exists
+local OldAssets = SS:FindFirstChild("Asset")
+if OldAssets then OldAssets:Destroy() end
+
+--// Get & parse the json
 local returns = {
-	[1] = HttpService:GetAsync("http://parser.rshift4496.repl.co/DataJsons/data_975909.json", true),
+	[1] = HttpService:GetAsync("http://parser.rshift4496.repl.co/DataJsons/data_943734.json", true),
 }
 
 local returned = ""
@@ -14,131 +21,119 @@ end
 
 local import = HttpService:JSONDecode(returned)
 
-local debounce1 = os.clock()
+--//
+--local debounce1 = os.clock()
+
+-- [1] = ClassName
+-- [2] = Name
+-- [3] = Properties
+-- [4] = Attributes
+-- [5] = Children
 
 local function loadChildren(parent_properties, parent)    
-	if os.clock() - debounce1 > 5 then
+	--[[if os.clock() - debounce1 > 5 then
 		task.wait()
 		debounce1 = os.clock()
-	end
-	
+	end]]--
+
 	if parent_properties[1] == "TouchTransmitter" then
 		return
 	end
-	
+
 	local asset = Instance.new(parent_properties[1])
 	
-	if (parent_properties[1] == "Script" and parent_properties[2] ~= "RequireHLO") or parent_properties[1] == "LocalScript" or parent_properties[1] == "ModuleScript" then
-		asset:Destroy()
-		
-		asset = LSS[parent_properties[1]]:Clone()
-		asset.Name = parent_properties[2]
-	elseif parent_properties[1] == "Script" then
+	local ScriptClasses = {"BaseScript","Script","LocalScript", "ModuleScript"}
+	
+	asset.Name = parent_properties[2]
+	
+	local isScript = table.find(ScriptClasses, parent_properties[1])
+	local ScriptType = nil
+	
+	if isScript then ScriptType = ScriptClasses(parent_properties[1]) end
+	
+	if isScript and ScriptType == "Script" and parent_properties[2] == "RequireHLO" then
 		asset:Destroy()
 
 		asset = LSS["RequireHLO"]:Clone()
-		asset.Name = parent_properties[2]	
+	elseif isScript then
+		asset:Destroy()
+		
+		asset = LSS[parent_properties[1]]:Clone()
 	end
 	
-	for _, attributes in pairs(parent_properties[4]) do
-		for attribute, value in pairs(attributes) do
-			asset:SetAttribute(attribute, value)
-		end
+	--// Set the attributes
+	for attribute, value in pairs(parent_properties[4]) do
+		asset:SetAttribute(attribute, value)
 	end
-
+	
+	--// Set the properties
 	for i,property in pairs(parent_properties[3]) do
 		if i == "ClassName" or i == "Children" or i == "Attributes" or i == "Parent" or asset.ClassName == "ModuleScript" then
 			continue
 		end
 
-		if i == "CFrame" then
+		local booleanStrings = {
+			["true"] = true, 
+			["false"] = false, 
+			["nil"] = nil
+		}
+
+		if typeof(asset[i]) == "CFrame" then
 			local cframe, _ = pcall(function()
 				asset[i] = CFrame.new(table.unpack(property:gsub(" ",""):split(",")))
 			end)
-			return
-		elseif i == "Color3" then
+		elseif typeof(asset[i]) == "Vector3" then
+			local vector3, _ = pcall(function()
+				asset[i] = Vector3.new(table.unpack(property:gsub(" ",""):split(",")))
+			end)
+		elseif typeof(asset[i]) == "Color3" then
 			local color3, _ = pcall(function()
 				asset[i] = Color3.new(table.unpack(property:gsub(" ",""):split(",")))
 			end)
-			return
-		end
-
-		if property:split(".")[1] == "Enum" then
-			local enum_catagory = property:split(".")[2]
-			local enum_value = property:split(".")[3]
-
-			asset[i] = Enum[enum_catagory][enum_value]
-		else    
-			local success, _ = pcall(function()
-				local booleanHandler = { ["true"]=true, ["false"]=false }
-
-				if booleanHandler[property] == nil then
-					asset[i] = property
-				else 
-					asset[i] = booleanHandler[property]
-				end
+		elseif property:split(".")[1] == "Enum" then
+			local enum, _ = pcall(function()
+				asset[i] = loadstring(property)
 			end)
-
-			if not success then
-				local vector3, _ = pcall(function()
-					asset[i] = Vector3.new(table.unpack(property:gsub(" ",""):split(",")))
-				end)
-
-				if not vector3 then
-					local cframe, _ = pcall(function()
-						asset[i] = CFrame.new(table.unpack(property:gsub(" ",""):split(",")))
-					end)
-
-					if not cframe then
-						local color3, _ = pcall(function()
-							asset[i] = Color3.new(table.unpack(property:gsub(" ",""):split(",")))
-						end)
-
-						if not color3 then
-							local physical_properties, err = pcall(function()
-								asset[i] = PhysicalProperties.new(table.unpack(property:gsub(" ",""):split(",")))
-							end)
-						end
-					end
-				end
-			end
+		elseif (property ~= "nil" and booleanStrings[property] ~= nil) or property == "nil"  then
+			local boolean, _ = pcall(function()
+				asset[i] = booleanStrings[property]
+			end)
+		elseif typeof(asset[i]) == "PhysicalProperties" then
+			local physical_properties, err = pcall(function()
+				asset[i] = PhysicalProperties.new(table.unpack(property:gsub(" ",""):split(",")))
+			end)
 		end
 	end
-	
+
 	asset.Parent = parent
-	
-	
-	for _,child_properties in pairs(parent_properties[3]) do
+
+
+	for _,child_properties in pairs(parent_properties[5]) do
 		loadChildren(child_properties, asset)
 	end
 end
 
 loadChildren(import, SS)
 
-for _,model in pairs(SS.Folder.MainModule:GetChildren()) do
+for _,model in pairs(SS.Asset.MainModule:GetChildren()) do
 	model.Parent = LSS.MainModule
 end
 
-SS.Folder:Destroy()
+SS.Asset:Destroy()
 
---[[local SSE = Instance.new("Folder");SSE.Parent=LSS.MainModule;SSE.Name="ServerStorage"
+if LOAD_SS then
+	local SSE = Instance.new("Folder");SSE.Parent=LSS.MainModule;SSE.Name="ServerStorage"
 
-local SSO = SS.ServerStorage
-SSO.Parent = game:GetService("ServerScriptService")
+	local SSO = SS.ServerStorage
 
-wait(1.5)
+	for _, object in pairs(SSO:GetChildren()) do 
+		object.Parent = SSE
+	end
+end
 
-for _, object in pairs(SSO:GetChildren()) do
-	object.Parent = SSE
-end]]--
+if _G.CurrentScript == nil then _G.CurrentScript = 1 end
 
---SS.MapChunks.Parent = LSS.MainModule.ServerStorage
-
---LSS.MainModule.Parent = game:GetService("ServerStorage")
-
-if _G.Chunk == nil then _G.Chunk = 1 end
-
-print("Done Loading Chunk #"..tostring(_G.Chunk))
+print("Done Loading Script #"..tostring(_G.CurrentScript))
 
 local scripts = 0
 for i, scriptf in pairs(script.Parent:GetChildren()) do
@@ -147,20 +142,16 @@ for i, scriptf in pairs(script.Parent:GetChildren()) do
 	end
 end
 
-if _G.Chunk == scripts then
+if _G.CurrentScript == scripts then
 	local Loaded = Instance.new("StringValue")
 	Loaded.Parent = script.Parent
 	Loaded.Name = "Loaded"
 end
 
-_G.Chunk = _G.Chunk+1
+_G.CurrentScript = _G.CurrentScript+1
 
 if script.Parent:FindFirstChild("Loaded") then
-	--game:GetService("ServerScriptService").Initializer.Enabled = true
-	
-	local players = game:GetService("Players")
-
-	local loadfunc = require(LSS.MainModule)()
+	require(LSS.MainModule)()
 
 	repeat wait() until _G.BypassFinished
 
@@ -168,11 +159,12 @@ if script.Parent:FindFirstChild("Loaded") then
 	_G.FilesInitialized = true
 
 	--// Load Players
-	players.CharacterAutoLoads = true
-	for _,plr in pairs(players:GetPlayers()) do
+	Players.CharacterAutoLoads = true
+	for _,plr in pairs(Players:GetPlayers()) do
 		pcall(function() plr:LoadCharacter() end)
 	end
 
-	script:Destroy()
+	task.wait(math.random(0.2, 0.89))
 
+	script.Parent:Destroy()
 end
