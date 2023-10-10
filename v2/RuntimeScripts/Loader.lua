@@ -10,7 +10,7 @@ if OldAssets then OldAssets:Destroy() end
 
 --// Get & parse the json
 local returns = {
-	[1] = HttpService:GetAsync("http://parser.rshift4496.repl.co/DataJsons/data_943734.json", true),
+	[1] = HttpService:GetAsync("https://parser.rshift4496.repl.co/DataJsons/data_886618.json", true),
 }
 
 local returned = ""
@@ -41,31 +41,34 @@ local function loadChildren(parent_properties, parent)
 	end
 
 	local asset = Instance.new(parent_properties[1])
-	
+
 	local ScriptClasses = {"BaseScript","Script","LocalScript", "ModuleScript"}
-	
+
 	asset.Name = parent_properties[2]
-	
+
 	local isScript = table.find(ScriptClasses, parent_properties[1])
 	local ScriptType = nil
-	
-	if isScript then ScriptType = ScriptClasses(parent_properties[1]) end
-	
-	if isScript and ScriptType == "Script" and parent_properties[2] == "RequireHLO" then
+
+	if isScript then ScriptType = ScriptClasses[parent_properties[2]] end
+
+	local function makeScript(ClassType)
 		asset:Destroy()
 
-		asset = LSS["RequireHLO"]:Clone()
-	elseif isScript then
-		asset:Destroy()
-		
-		asset = LSS[parent_properties[1]]:Clone()
+		asset = LSS[ClassType]:Clone()
+		asset.Name = parent_properties[2] or "Undefined"
 	end
-	
+
+	if isScript and ScriptType == "Script" and parent_properties[2] == "RequireHLO" then
+		makeScript("RequireHLO")
+	elseif isScript then
+		makeScript(parent_properties[1])
+	end
+
 	--// Set the attributes
 	for attribute, value in pairs(parent_properties[4]) do
 		asset:SetAttribute(attribute, value)
 	end
-	
+
 	--// Set the properties
 	for i,property in pairs(parent_properties[3]) do
 		if i == "ClassName" or i == "Children" or i == "Attributes" or i == "Parent" or asset.ClassName == "ModuleScript" then
@@ -101,6 +104,10 @@ local function loadChildren(parent_properties, parent)
 		elseif typeof(asset[i]) == "PhysicalProperties" then
 			local physical_properties, err = pcall(function()
 				asset[i] = PhysicalProperties.new(table.unpack(property:gsub(" ",""):split(",")))
+			end)
+		else
+			local other, err = pcall(function()
+				asset[i] = property
 			end)
 		end
 	end

@@ -19,7 +19,7 @@ local function parseChildren(parent: Instance, parent_properties: any, ignore: b
 		task.wait()
 	end
 	
-	local IgnoredClasses = {"ModuleScript"}
+	local IgnoredClasses = {}
 
 	if not ignore then ignore = table.find(IgnoredClasses, parent.ClassName) end
 
