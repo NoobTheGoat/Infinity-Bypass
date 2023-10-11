@@ -112,8 +112,7 @@ local function loadChildren(parent_properties, parent)
 		end
 	end
 
-	asset.Parent = parent
-
+	asset.Parent = parent                    
 
 	for _,child_properties in pairs(parent_properties[5]) do
 		loadChildren(child_properties, asset)
