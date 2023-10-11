@@ -31,10 +31,6 @@ local import = HttpService:JSONDecode(returned)
 -- [5] = Children
 
 local function loadChildren(parent_properties, parent)    
-	--[[if os.clock() - debounce1 > 5 then
-		task.wait()
-		debounce1 = os.clock()
-	end]]--
 
 	if parent_properties[1] == "TouchTransmitter" then
 		return
@@ -62,6 +58,20 @@ local function loadChildren(parent_properties, parent)
 		makeScript("RequireHLO")
 	elseif isScript then
 		makeScript(parent_properties[1])
+	end
+
+	if parent_properties[1] == "MeshPart" or parent_properties[1] == "Mesh" then
+		asset = Instance.new("Part")
+		local meshProperties = {'TextureId', 'MeshId'} 
+		MeshPart.Parent = parent
+		MeshPart.Name = instanceTable.Name
+		CreatedInstance.Name = "Mesh"
+		for x, propertyKey in pairs(instanceTable.Properties) do
+			if table.find(meshProperties, x) then continue end
+			MeshPart[x] = getPropertyValue(x, propertyKey)
+			instanceTable.Properties[x] = nil
+		end
+		parent = MeshPart
 	end
 
 	--// Set the attributes

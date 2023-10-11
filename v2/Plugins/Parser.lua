@@ -3,7 +3,13 @@ local SSS = game:GetService("ServerScriptService")
 local SS = game:GetService("ServerStorage")
 local HttpService = game:GetService("HttpService")
 
-local Properties = require(game.ServerScriptService.Properties)
+local AssetsLoaded = false
+
+repeat wait() spawn(function()
+	AssetsLoaded = (SSS:FindFirstChild("Properties") and SS:FindFirstChild("Asset"))
+end) until AssetsLoaded
+
+local Properties = require(SSS.Properties)
 
 local last = os.clock()
 
@@ -19,9 +25,11 @@ local function parseChildren(parent: Instance, parent_properties: any, ignore: b
 		task.wait()
 	end
 	
-	local IgnoredClasses = {}
+	local IgnoredClasses = {'TouchTransmitter'}
 
 	if not ignore then ignore = table.find(IgnoredClasses, parent.ClassName) end
+
+	if ignore and #parent:GetChildren() <= 0 then return end
 
 	local IgnoredProperties = {'LinkedSource', 'Archivable'}
 
