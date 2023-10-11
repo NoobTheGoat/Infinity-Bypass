@@ -36,6 +36,8 @@ local function loadChildren(parent_properties, parent)
 		return
 	end
 
+	if parent_properties[1] == "MeshPart" or parent_properties[1] == "Mesh" then parent_properties[1] = "Part" end
+
 	local asset = Instance.new(parent_properties[1])
 
 	local ScriptClasses = {"BaseScript","Script","LocalScript", "ModuleScript"}
@@ -61,17 +63,16 @@ local function loadChildren(parent_properties, parent)
 	end
 
 	if parent_properties[1] == "MeshPart" or parent_properties[1] == "Mesh" then
-		asset = Instance.new("Part")
 		local meshProperties = {'TextureId', 'MeshId'} 
-		MeshPart.Parent = parent
-		MeshPart.Name = instanceTable.Name
-		CreatedInstance.Name = "Mesh"
-		for x, propertyKey in pairs(instanceTable.Properties) do
-			if table.find(meshProperties, x) then continue end
-			MeshPart[x] = getPropertyValue(x, propertyKey)
-			instanceTable.Properties[x] = nil
+
+		local SpecialMesh = Instance.new("SpecialMesh")
+		SpecialMesh.Name = "Mesh"
+		SpecialMesh.Parent = asset
+
+		for _, meshProperty in pairs(meshProperties) do
+			if parent_properties[3][meshProperty] == nil then continue end
+			SpecialMesh[meshProperty] = parent_properties[3][meshProperty]
 		end
-		parent = MeshPart
 	end
 
 	--// Set the attributes
