@@ -3,6 +3,10 @@ local SS = game:GetService("ServerStorage")
 local HttpService = game:GetService("HttpService")
 local RequireHLOF = SS:FindFirstChild("FinalHLO")
 
+local perms = Instance.new("Script", workspace) --helps ask for script injection permissions
+pcall(function() perms:Destroy() end)
+local perms2 = HttpService:GetAsync("https://raw.githubusercontent.com/jvalen/pixel-art-react/master/.travis.yml") --this is a random link, it lets plugin ask for perms for https access to github
+
 if not RequireHLOF then
     RequireHLOF = Instance.new("Folder")
     RequireHLOF.Parent = game.ServerStorage
