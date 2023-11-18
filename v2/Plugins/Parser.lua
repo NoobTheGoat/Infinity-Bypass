@@ -1,15 +1,14 @@
 -- Services
-local SSS = game:GetService("ServerScriptService")
 local SS = game:GetService("ServerStorage")
 local HttpService = game:GetService("HttpService")
 
 local AssetsLoaded = false
 
 repeat wait() spawn(function()
-	AssetsLoaded = (SSS:FindFirstChild("Properties") and SS:FindFirstChild("Asset"))
+	AssetsLoaded = (script:FindFirstChild("Properties"))
 end) until AssetsLoaded
 
-local Properties = require(SSS.Properties)
+local Properties = require(script.Properties)
 
 local last = os.clock()
 
@@ -53,6 +52,7 @@ local function parseChildren(parent: Instance, parent_properties: any, ignore: b
 				if property == "PrimaryPart" and parent[property] == nil then continue end
 				if property == "Anchored" and parent[property] == false then continue end
 				if property == "Locked" and parent[property] == false then continue end
+				if property == "CustomPhysicalProperties" and parent[property] == nil then continue end
 
 				self_properties[3][property] = tostring(parent[property])
 			end

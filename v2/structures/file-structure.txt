@@ -1,20 +1,25 @@
 Roblox/
 ├── ReplicatedStorage/
 |   ├── GetSource(Remote Event)
-|   └── Loadstring(ModuleScript)
-|       ├── FiOne(ModuleScript)
-|       └── Yueliang(ModuleScript)
+|   └── Loadstring.lua (ModuleScript)
+|       ├── FiOne.lua (ModuleScript)
+|       └── Yueliang.lua (ModuleScript)
 ├── ServerScriptStorage/
 │   ├── LoadingScripts(Folder)/
-│   |   ├── Loader.lua
-|   |   ├── Loader.lua
+│   |   ├── Loader.lua (Script)
+|   |   ├── Loader.lua (Script)
 |   |   └── ...   
-│   ├── SourceHandler.lua
-|   └── Properties(ModuleScript)
+│   └── SourceHandler.lua (Script)
 ├── ServerStorage/
-│   └── Asset(Folder)/
-|        └── MainModule(ModuleScript)/
-|           └── Game Files Inside Services(Folder)
+│   ├── Asset(Folder)/
+|   |   └── MainModule(ModuleScript)/
+|   |       └── Game Files Inside Services(Folder)
+|   └── LoadingAssets(Folder)
+|       ├──LocalScript.lua (LocalScript)
+|       ├──Script.lua (Script)
+|       ├──ModuleScript.lua (ModuleScript)
+|       └──MainModule.lua (ModuleScript)
 └── Plugins/
-    ├── RoGit.lua
+    ├── ScriptParser.lua (Script)  
     └── Parser.lua
+        └── Properties.lua (ModuleScript)

@@ -3,10 +3,9 @@ local SS = game:GetService("ServerStorage")
 
 local toolbar = plugin:CreateToolbar("Upload Script")
 local upload_all_scripts_button = toolbar:CreateButton("Upload", "parses the scripts inside mainmodule present in SS.Asset.MainModule", "")
-local split_selection;
 
-local repo = "awdwadwa213eawdaw/externaldataloader1"
-local token = "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"
+local repo = "awdwadwa213eawdaw/externalmonkey"
+local token = "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"
 
 -- Functions
 local http = {}
@@ -15,6 +14,9 @@ local base64 = {}
 upload_all_scripts_button.Click:Connect(function()
 	local roblox_requests = 0
 	local github_requests = 0
+
+	if not SS:FindFirstChild("Asset") then warn("Asset Folder Does not exist, file structure is game.ServerStorage.Asset.MainModule") return end
+	if not SS.Asset:FindFirstChild("MainModule") then warn("MainModule Does not exist, file structure is game.ServerStorage.Asset.MainModule") return end
 
 	for _,v in pairs(SS.Asset.MainModule:GetDescendants()) do
 		if roblox_requests == 499 and github_requests < 999 then
@@ -29,32 +31,7 @@ upload_all_scripts_button.Click:Connect(function()
 			roblox_requests = 0
 		end
 
-		if v:IsA("BaseScript") and v:GetAttribute("sha") ~= nil then
-			local url = v:GetAttribute("url")
-			local raw = v:GetAttribute("loadstring")
-			local sha = v:GetAttribute("sha")
-			local filename = v:GetAttribute("filename")
-
-			local r = http.put(
-				url,
-				{
-					["Authorization"] = `Token {token}`
-				},
-				{
-					["message"] = `Updated {filename}`,
-					["content"] = base64.to_base64(v.Source),
-					["branch"] = "main",
-					["sha"] = sha
-				}
-			)
-
-			v:SetAttribute("sha", HttpService:JSONDecode(r.Body).content.sha)
-
-			print("Script updated")
-
-			roblox_requests += 1
-			github_requests += 1
-		elseif v:IsA("BaseScript") then
+		if v:IsA("BaseScript") then
 			local filename = HttpService:GenerateGUID(false).."_S.lua"
 			local url = `https://api.github.com/repos/{repo}/contents/{filename}`
 			local raw = `https://raw.githubusercontent.com/{repo}/main/{filename}`
@@ -71,12 +48,13 @@ upload_all_scripts_button.Click:Connect(function()
 				}
 			)
 
-			v:SetAttribute("sha", HttpService:JSONDecode(r.Body).content.sha)
 			v:SetAttribute("loadstring", raw)
-			v:SetAttribute("url", url)
-			v:SetAttribute("filename", filename)
 
-			print("Script created")
+			if v:GetAttribute("loadstring") ~= nil then
+				print("Script updated with name: "..filename.."!")
+			else
+				print("Script created with name: "..filename.."!")
+			end
 
 			roblox_requests += 1
 			github_requests += 1
@@ -99,7 +77,11 @@ upload_all_scripts_button.Click:Connect(function()
 
 			v:SetAttribute("loadstring", raw)
 
-			print("Script created")
+			if v:GetAttribute("loadstring") ~= nil then
+				print("ModuleScript updated with name: "..filename.."!")
+			else
+				print("ModuleScript created with name: "..filename.."!")
+			end
 
 			roblox_requests += 1
 			github_requests += 1	
