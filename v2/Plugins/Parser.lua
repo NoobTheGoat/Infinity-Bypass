@@ -86,7 +86,7 @@ local RequireHLOsource = [[local a=script:GetAttribute("id")pcall(function()loca
 
 local currentUnion = #RequireHLOF:GetChildren() + 1
 
-local function replaceUnion(object)
+local function replaceUnion(object: Instance)
     currentUnion = currentUnion + 1
     object:SetAttribute("name", object.Name)
     object.Name = tostring(currentUnion)
@@ -113,7 +113,9 @@ parse_selection.Click:Connect(function()
 	
 	print("Attempting To Migrate Unions!")
 	fixUnions(SS.Asset)
-	print("Unions Migrated Successfully to game.ServerStorage.FinalHLO")
+	print("Unions Migrated Successfully to game.ServerStorage.FinalHLO!")
+
+	print("Attempting To Upload JSON data!")
 
 	local data = game.HttpService:JSONEncode(parseChildren(SS.Asset, {["Children"] = {}, ["ClassName"] = "nil"}, true))
 
