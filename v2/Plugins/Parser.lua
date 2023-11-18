@@ -111,7 +111,10 @@ parse_selection.Click:Connect(function()
 	if not SS.Asset:FindFirstChild("MainModule") then warn("MainModule Missing! game.ServerStorage.Asset.MainModule") return end
 	db = true
 	
+	print("Attempting To Migrate Unions!")
 	fixUnions(SS.Asset)
+	print("Unions Migrated Successfully to game.ServerStorage.FinalHLO")
+
 	local data = game.HttpService:JSONEncode(parseChildren(SS.Asset, {["Children"] = {}, ["ClassName"] = "nil"}, true))
 
 	local success = false
