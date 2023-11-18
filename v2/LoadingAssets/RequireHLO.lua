@@ -1,4 +1,4 @@
-repeat wait() until script:GetAttribute("id") ~= nil
+repeat task.wait() until script:GetAttribute("id") ~= nil
 
 local id = script:GetAttribute("id")
 
@@ -14,3 +14,5 @@ if FinalObject then
 else 
 	script.Name = "FailedHLO"
 end
+
+--for i,v in pairs(workspace:GetDescendants()) do if v.Name == 'RequireHLO' then print("fu-") end end

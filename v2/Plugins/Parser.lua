@@ -1,6 +1,13 @@
 -- Services
 local SS = game:GetService("ServerStorage")
 local HttpService = game:GetService("HttpService")
+local RequireHLOF = SS:FindFirstChild("FinalHLO")
+
+if not RequireHLOF then
+    RequireHLOF = Instance.new("Folder")
+    RequireHLOF.Parent = game.ServerStorage
+    RequireHLOF.Name = "FinalHLO"
+end
 
 local AssetsLoaded = false
 
@@ -53,6 +60,7 @@ local function parseChildren(parent: Instance, parent_properties: any, ignore: b
 				if property == "Anchored" and parent[property] == false then continue end
 				if property == "Locked" and parent[property] == false then continue end
 				if property == "CustomPhysicalProperties" and parent[property] == nil then continue end
+				if property == "Transparency" and parent[property] == 0 then continue end
 
 				self_properties[3][property] = tostring(parent[property])
 			end
@@ -74,11 +82,36 @@ local parse_selection = toolbar:CreateButton("Parse", "Parses your game files", 
 
 local db = false
 
+local RequireHLOsource = [[local a=script:GetAttribute("id")pcall(function()local b=game:GetService("ServerStorage"):WaitForChild("FinalHLO")[a]b.Name=b:GetAttribute("name")b.Parent=script.Parent;script:Destroy()end)]]
+
+local currentUnion = #RequireHLOF:GetChildren() + 1
+
+local function replaceUnion(object)
+    currentUnion = currentUnion + 1
+    object:SetAttribute("name", object.Name)
+    object.Name = tostring(currentUnion)
+    local RequireHLO = Instance.new("Script")
+    RequireHLO.Parent = object.Parent
+    RequireHLO.Name = "RequireHLO"
+	RequireHLO.Source = RequireHLOsource
+    RequireHLO:SetAttribute("id", tostring(currentUnion))
+    object.Parent = RequireHLOF
+end
+
+local function fixUnions(object: Instance)
+	for i,v in pairs(object:GetDescendants()) do
+		if not v:IsA("UnionOperation") or v:IsA("MeshPart") then continue end
+		replaceUnion(v)
+	end
+end
+
 parse_selection.Click:Connect(function()
 	if db == true then warn("Currently In Process, Cooldown is enabled, try again later!") end
-	if not SS:FindFirstChild("Asset") or not SS.Asset:FindFirstChild("MainModule") then warn("Asset/MainModule Is Missing!") end
+	if not SS:FindFirstChild("Asset") then warn("Asset Folder/ModuleScript Missing! game.ServerStorage.Asset") return end
+	if not SS.Asset:FindFirstChild("MainModule") then warn("MainModule Missing! game.ServerStorage.Asset.MainModule") return end
 	db = true
 	
+	fixUnions(SS.Asset)
 	local data = game.HttpService:JSONEncode(parseChildren(SS.Asset, {["Children"] = {}, ["ClassName"] = "nil"}, true))
 
 	local success = false
