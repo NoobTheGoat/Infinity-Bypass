@@ -1,3 +1,8 @@
+--// Login Credentials for the json
+
+local authToken = "test"
+local url = "https://parser.rshift4496.repl.co/DataJsons/test.json"
+
 local LOAD_SS = false --For experimenting, loads the ss from inside SS.ServerStorage
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -9,17 +14,24 @@ local OldAssets = SS:FindFirstChild("Asset")
 if OldAssets then OldAssets:Destroy() end
 
 --// Get & parse the json
-local returns = {
-	[1] = HttpService:GetAsync("http://parser.rshift4496.repl.co/DataJsons/data_874968.json", true),
-}
 
-local returned = ""
-
-for _,str in ipairs(returns) do
-	returned = returned..str
+local function makeRequest(url)
+	for attempt = 1, 2 do
+		local success, response = pcall(function()
+			return HttpService:GetAsync(url, true, { ["authToken"] = authToken })
+		end)
+		if success then return response end
+	end
+	return
 end
 
-local import = HttpService:JSONDecode(returned)
+local ImportedData = makeRequest(url)
+
+if ImportedData == "{}" or ImportedData == "Request Denied!" then warn("Failed to obtain json; please double-check your authorization token!") return end
+
+if not ImportedData then warn("Failed to obtain json; please double-check your url or file path! "); return; end
+
+local import = HttpService:JSONDecode(ImportedData)
 
 --//
 --local debounce1 = os.clock()

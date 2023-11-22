@@ -1,0 +1,86 @@
+[
+    {
+      "name": "set-db",
+      "description": "Change The DB Json to be Used!",
+      "options": [
+        {
+          "type": "attachment",
+          "name": "db",
+          "description": "Upload the DB(json)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-db",
+      "description": "Get the current db!"
+    },
+    {
+      "name": "set-playerdata",
+      "description": "Modify a player directory in PlayerDataV1 path!",
+      "options": [
+        {
+          "type": "string",
+          "name": "directory",
+          "description": "Directory Name",
+          "required": true
+        },
+        {
+          "type": "string",
+          "name": "value",
+          "description": "Directory Value",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "set-pc-data",
+      "description": "Modify a player directory in PC Data path!",
+      "options": [
+        {
+          "type": "string",
+          "name": "directory",
+          "description": "Directory Name",
+          "required": true
+        },
+        {
+          "type": "string",
+          "name": "value",
+          "description": "Directory Value",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-playerdata",
+      "description": "get a player directory in PlayerDataV1 path!",
+      "options": [
+        {
+          "type": "string",
+          "name": "directory",
+          "description": "Directory Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "get-pc-data",
+      "description": "Get a player directory in PC Data path!",
+      "options": [
+        {
+          "type": "string",
+          "name": "directory",
+          "description": "Directory Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "latency",
+      "description": "Gets the current latency of the database!"
+    },
+    {
+      "name": "help",
+      "description": "Gives you the list of commands!"
+    }
+  ]    

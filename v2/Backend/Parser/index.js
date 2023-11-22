@@ -45,15 +45,22 @@ const server = http.createServer(async (req, res) => {
   }
   else if (req.method === 'GET' && (parsedUrl.pathname.endsWith('.json') || parsedUrl.pathname.endsWith('.lua')) && parsedUrl.pathname.startsWith('/')) {
     const fileName = `.${parsedUrl.pathname}`; // Construct the filename based on the URL path
-    try {
-      const data = fs.readFileSync(fileName, 'utf8'); // Read the JSON file
-      res.setHeader('Content-Type', 'application/json');
-      res.statusCode = 200;
-      res.end(data); // Respond with the file content
-    } catch (err) {
-      console.error(err);
-      res.statusCode = 500;
-      res.end('Internal Server Error');
+    try{
+        const authToken = req.headers['authtoken'];
+        if (authToken != process.env['authToken']){
+            res.statusCode = 401;
+            res.end(`Request Denied!`)
+            return;
+        }
+        const data = fs.readFileSync(fileName, 'utf8'); // Read the JSON file
+        res.setHeader('Content-Type', 'application/json');
+        res.statusCode = 200;
+        res.end(data); // Respond with the file content
+    } 
+    catch (err) {
+        console.error(err);
+        res.statusCode = 500;
+        res.end('Internal Server Error');
     }
   }
   else {
