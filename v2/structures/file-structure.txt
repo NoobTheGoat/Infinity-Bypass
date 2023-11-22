@@ -1,6 +1,6 @@
 Roblox/
 ├── ReplicatedStorage/
-|   ├── GetSource(Remote Event)
+|   ├── GetSource(Remote Function)
 |   └── Loadstring.lua (ModuleScript)
 |       ├── FiOne.lua (ModuleScript)
 |       └── Yueliang.lua (ModuleScript)

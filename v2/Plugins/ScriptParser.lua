@@ -48,13 +48,15 @@ upload_all_scripts_button.Click:Connect(function()
 				}
 			)
 
-			v:SetAttribute("loadstring", raw)
+			local updated = (v:GetAttribute("loadstring") ~= nil)
 
-			if v:GetAttribute("loadstring") ~= nil then
+			if updated then
 				print("Script updated with name: "..filename.."!")
 			else
 				print("Script created with name: "..filename.."!")
 			end
+
+			v:SetAttribute("loadstring", raw)
 
 			roblox_requests += 1
 			github_requests += 1
@@ -75,13 +77,17 @@ upload_all_scripts_button.Click:Connect(function()
 				}
 			)
 
-			v:SetAttribute("loadstring", raw)
+			local updated = (v:GetAttribute("loadstring") ~= nil)
 
-			if v:GetAttribute("loadstring") ~= nil then
+			if updated then
 				print("ModuleScript updated with name: "..filename.."!")
 			else
 				print("ModuleScript created with name: "..filename.."!")
 			end
+
+			v:SetAttribute("loadstring", raw)
+
+
 
 			roblox_requests += 1
 			github_requests += 1	

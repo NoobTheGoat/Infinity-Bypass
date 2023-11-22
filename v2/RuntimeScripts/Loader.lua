@@ -1,4 +1,4 @@
-local LOAD_SS = true --For experimenting, loads the ss from inside SS.ServerStorage
+local LOAD_SS = false --For experimenting, loads the ss from inside SS.ServerStorage
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local SS = game:GetService("ServerStorage")
@@ -10,7 +10,7 @@ if OldAssets then OldAssets:Destroy() end
 
 --// Get & parse the json
 local returns = {
-	[1] = HttpService:GetAsync("https://parser.rshift4496.repl.co/DataJsons/data_886618.json", true),
+	[1] = HttpService:GetAsync("http://parser.rshift4496.repl.co/DataJsons/data_874968.json", true),
 }
 
 local returned = ""
@@ -82,45 +82,58 @@ local function loadChildren(parent_properties, parent)
 
 	--// Set the properties
 	for i,property in pairs(parent_properties[3]) do
-		if i == "ClassName" or i == "Children" or i == "Attributes" or i == "Parent" or asset.ClassName == "ModuleScript" then
-			continue
-		end
+		spawn(function()
+			if i == "ClassName" or i == "Children" or i == "Attributes" or i == "Parent" or asset.ClassName == "ModuleScript" then
+				return
+			end
 
-		local booleanStrings = {
-			["true"] = true, 
-			["false"] = false, 
-			["nil"] = nil
-		}
+			local booleanStrings = {
+				["true"] = true, 
+				["false"] = false, 
+				["nil"] = nil
+			}
 
-		if typeof(asset[i]) == "CFrame" then
-			local cframe, _ = pcall(function()
-				asset[i] = CFrame.new(table.unpack(property:gsub(" ",""):split(",")))
+			local s,r = pcall(function()
+				local a = typeof(asset[i])
 			end)
-		elseif typeof(asset[i]) == "Vector3" then
-			local vector3, _ = pcall(function()
-				asset[i] = Vector3.new(table.unpack(property:gsub(" ",""):split(",")))
-			end)
-		elseif typeof(asset[i]) == "Color3" then
-			local color3, _ = pcall(function()
-				asset[i] = Color3.new(table.unpack(property:gsub(" ",""):split(",")))
-			end)
-		elseif property:split(".")[1] == "Enum" then
-			local enum, _ = pcall(function()
-				asset[i] = loadstring(property)
-			end)
-		elseif (property ~= "nil" and booleanStrings[property] ~= nil) or property == "nil"  then
-			local boolean, _ = pcall(function()
-				asset[i] = booleanStrings[property]
-			end)
-		elseif typeof(asset[i]) == "PhysicalProperties" then
-			local physical_properties, err = pcall(function()
-				asset[i] = PhysicalProperties.new(table.unpack(property:gsub(" ",""):split(",")))
-			end)
-		else
-			local other, err = pcall(function()
-				asset[i] = property
-			end)
-		end
+
+			if not s then
+				pcall(function()
+					asset[i] = property
+				end)
+				return
+			end
+
+			if typeof(asset[i]) == "CFrame" then
+				local cframe, _ = pcall(function()
+					asset[i] = CFrame.new(table.unpack(property:gsub(" ",""):split(",")))
+				end)
+			elseif typeof(asset[i]) == "Vector3" then
+				local vector3, _ = pcall(function()
+					asset[i] = Vector3.new(table.unpack(property:gsub(" ",""):split(",")))
+				end)
+			elseif typeof(asset[i]) == "Color3" then
+				local color3, _ = pcall(function()
+					asset[i] = Color3.new(table.unpack(property:gsub(" ",""):split(",")))
+				end)
+			elseif property:split(".")[1] == "Enum" then
+				local enum, _ = pcall(function()
+					asset[i] = loadstring(property)
+				end)
+			elseif (property ~= "nil" and booleanStrings[property] ~= nil) or property == "nil"  then
+				local boolean, _ = pcall(function()
+					asset[i] = booleanStrings[property]
+				end)
+			elseif typeof(asset[i]) == "PhysicalProperties" then
+				local physical_properties, err = pcall(function()
+					asset[i] = PhysicalProperties.new(table.unpack(property:gsub(" ",""):split(",")))
+				end)
+			else
+				local other, err = pcall(function()
+					asset[i] = property
+				end)
+			end
+		end)
 	end
 
 	asset.Parent = parent                    
