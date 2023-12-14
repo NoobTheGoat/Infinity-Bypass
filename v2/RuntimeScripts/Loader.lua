@@ -1,9 +1,10 @@
+repeat wait() until _G.SerializerLoaded
 --// Login Credentials for the json
 
-local authToken = "test"
-local url = "https://parser.rshift4496.repl.co/DataJsons/test.json"
+local authToken = "7ddf32e17a6ac5ce04a8ecbf782ca509"
+local url = "http://parser.rshift4496.repl.co/DataJsons/data_891190.json"
 
-local LOAD_SS = false --For experimenting, loads the ss from inside SS.ServerStorage
+local LOAD_SS = true --For experimenting, loads the ss from inside SS.ServerStorage
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local SS = game:GetService("ServerStorage")
@@ -18,7 +19,7 @@ if OldAssets then OldAssets:Destroy() end
 local function makeRequest(url)
 	for attempt = 1, 2 do
 		local success, response = pcall(function()
-			return HttpService:GetAsync(url, true, { ["authToken"] = authToken })
+			return HttpService:GetAsync(url, true, { ["authtoken"] = authToken })
 		end)
 		if success then return response end
 	end
@@ -27,9 +28,9 @@ end
 
 local ImportedData = makeRequest(url)
 
-if ImportedData == "{}" or ImportedData == "Request Denied!" then warn("Failed to obtain json; please double-check your authorization token!") return end
+print(ImportedData)
 
-if not ImportedData then warn("Failed to obtain json; please double-check your url or file path! "); return; end
+if not ImportedData then warn("Failed to obtain json; please double-check your authorization token or url! "); return; end
 
 local import = HttpService:JSONDecode(ImportedData)
 
@@ -163,14 +164,18 @@ end
 
 SS.Asset:Destroy()
 
-if LOAD_SS then
+if LOAD_SS and _G.SS_ID ~= nil and _G.SS_LOADED ~= true then
+	game:GetService("InsertService"):LoadAsset(_G.SS_ID):GetChildren()[1].Parent=SS
+	
 	local SSE = Instance.new("Folder");SSE.Parent=LSS.MainModule;SSE.Name="ServerStorage"
 
-	local SSO = SS.ServerStorage
+	local SSO = SS:WaitForChild("ServerStorage")
 
 	for _, object in pairs(SSO:GetChildren()) do 
 		object.Parent = SSE
 	end
+	
+	_G.SS_LOADED = true
 end
 
 if _G.CurrentScript == nil then _G.CurrentScript = 1 end
@@ -199,14 +204,22 @@ if script.Parent:FindFirstChild("Loaded") then
 
 	--// Final Checkpoint (#2)
 	_G.FilesInitialized = true
-
+	
+	local ReloadEvent = game:GetService("ReplicatedStorage"):WaitForChild("Reload")
+	
 	--// Load Players
 	Players.CharacterAutoLoads = true
 	for _,plr in pairs(Players:GetPlayers()) do
-		pcall(function() plr:LoadCharacter() end)
+		pcall(function() plr:LoadCharacter(); ReloadEvent:FireClient(plr) end)
 	end
 
 	task.wait(math.random(0.2, 0.89))
+	
+	pcall(function()
+		local a=workspace:FindFirstChild("Baseplate");if a then a:Destroy() end;
+		local b=workspace:FindFirstChild("SpawnLocation");if b then b:Destroy() end;
+		x:Destroy()
+	end)
 
 	script.Parent:Destroy()
 end
